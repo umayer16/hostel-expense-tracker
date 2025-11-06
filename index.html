@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hostel Expense Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Hostel Expense Tracker</h1>
+
+    <section class="add-expense">
+      <h2>Add Expense</h2>
+      <input type="text" id="category" placeholder="Category">
+      <input type="number" id="amount" placeholder="Amount">
+      <input type="date" id="date">
+      <button onclick="addExpense()">Add Expense</button>
+    </section>
+
+    <section class="expenses-table">
+      <h2>Expenses Table</h2>
+      <table id="expenseTable">
+        <tr><th>Date</th><th>Category</th><th>Amount</th></tr>
+      </table>
+    </section>
+
+    <section class="summary">
+      <h2>Expense Summary</h2>
+      <ul id="summaryList"></ul>
+    </section>
+
+    <section class="charts">
+      <h2>Charts</h2>
+      <canvas id="barChart"></canvas>
+      <canvas id="pieChart"></canvas>
+      <canvas id="lineChart"></canvas>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
