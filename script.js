@@ -1,9 +1,11 @@
 let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+let editIndex = null; // Track which expense is being edited
 
 function saveExpenses() {
   localStorage.setItem("expenses", JSON.stringify(expenses));
 }
 
+// Add or Update expense
 function addExpense() {
   const category = document.getElementById("category").value;
   const amount = parseFloat(document.getElementById("amount").value);
@@ -14,40 +16,88 @@ function addExpense() {
     return;
   }
 
-  expenses.push({category, amount, date});
+  if (editIndex !== null) {
+    // Update existing expense
+    expenses[editIndex] = { category, amount, date };
+    editIndex = null;
+    document.querySelector('button[onclick="addExpense()"]').innerText = "Add Expense";
+  } else {
+    expenses.push({ category, amount, date });
+  }
+
   saveExpenses();
   displayExpenses();
   updateSummary();
   drawCharts();
 
+  // Clear inputs
   document.getElementById("category").value = "";
   document.getElementById("amount").value = "";
   document.getElementById("date").value = "";
 }
 
+// Display expenses in table
 function displayExpenses() {
   const table = document.getElementById("expenseTable");
-  table.innerHTML = "<tr><th>Date</th><th>Category</th><th>Amount</th></tr>";
-  for (const e of expenses) {
+  table.innerHTML = `
+    <tr>
+      <th>Date</th>
+      <th>Category</th>
+      <th>Amount</th>
+      <th>Actions</th>
+    </tr>
+  `;
+
+  expenses.forEach((e, index) => {
     const row = table.insertRow();
     row.insertCell(0).innerText = e.date;
     row.insertCell(1).innerText = e.category;
     row.insertCell(2).innerText = e.amount.toFixed(2);
+
+    const actionsCell = row.insertCell(3);
+    actionsCell.innerHTML = `
+      <button onclick="editExpense(${index})">Edit</button>
+      <button onclick="deleteExpense(${index})">Delete</button>
+    `;
+  });
+}
+
+// Edit an expense
+function editExpense(index) {
+  const e = expenses[index];
+  document.getElementById("category").value = e.category;
+  document.getElementById("amount").value = e.amount;
+  document.getElementById("date").value = e.date;
+  editIndex = index;
+  document.querySelector('button[onclick="addExpense()"]').innerText = "Update Expense";
+}
+
+// Delete an expense
+function deleteExpense(index) {
+  if (confirm("Are you sure you want to delete this expense?")) {
+    expenses.splice(index, 1);
+    saveExpenses();
+    displayExpenses();
+    updateSummary();
+    drawCharts();
   }
 }
 
+// Summarize by category
 function summarize() {
   const summary = {};
   expenses.forEach(e => summary[e.category] = (summary[e.category] || 0) + e.amount);
   return summary;
 }
 
+// Total expenses over time
 function expensesOverTime() {
   const daily = {};
   expenses.forEach(e => daily[e.date] = (daily[e.date] || 0) + e.amount);
   return Object.fromEntries(Object.entries(daily).sort());
 }
 
+// Update summary list
 function updateSummary() {
   const summary = summarize();
   const ul = document.getElementById("summaryList");
@@ -59,6 +109,7 @@ function updateSummary() {
   }
 }
 
+// Draw charts
 function drawCharts() {
   const sum = summarize();
   const categories = Object.keys(sum);
